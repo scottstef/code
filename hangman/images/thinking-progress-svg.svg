@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <circle cx="200" cy="200" r="180" fill="#fff8e1" />
+  
+  <!-- Character body -->
+  <ellipse cx="200" cy="220" rx="100" ry="120" fill="#ffe082" stroke="#ffd54f" stroke-width="3" />
+  
+  <!-- Face -->
+  <circle cx="200" cy="160" r="80" fill="#ffe0b2" stroke="#ffcc80" stroke-width="2" />
+  
+  <!-- Eyes -->
+  <g>
+    <!-- Left eye -->
+    <circle cx="170" cy="140" r="15" fill="white" stroke="#333" stroke-width="1" />
+    <circle cx="170" cy="140" r="8" fill="#333" />
+    <circle cx="172" cy="137" r="3" fill="white" />
+    
+    <!-- Right eye -->
+    <circle cx="230" cy="140" r="15" fill="white" stroke="#333" stroke-width="1" />
+    <circle cx="230" cy="140" r="8" fill="#333" />
+    <circle cx="232" cy="137" r="3" fill="white" />
+    
+    <!-- Eyebrows - thinking -->
+    <path d="M155,115 Q170,105 185,115" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+    <path d="M215,125 Q230,135 245,125" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Thinking mouth -->
+  <path d="M180,180 Q200,190 220,180" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Hand to chin thinking pose -->
+  <path d="M140,220 Q160,230 160,180" fill="none" stroke="#ffd54f" stroke-width="8" stroke-linecap="round" />
+  <circle cx="160" cy="180" r="15" fill="#ffe082" stroke="#ffd54f" stroke-width="2" />
+  
+  <!-- Thought bubble -->
+  <g>
+    <circle cx="280" cy="100" r="25" fill="white" stroke="#bdbdbd" stroke-width="2" />
+    <circle cx="250" cy="80" r="15" fill="white" stroke="#bdbdbd" stroke-width="2" />
+    <circle cx="230" cy="70" r="8" fill="white" stroke="#bdbdbd" stroke-width="2" />
+    
+    <!-- Question mark in thought bubble -->
+    <path d="M275,95 Q285,85 275,80 Q265,75 275,90" fill="none" stroke="#757575" stroke-width="3" stroke-linecap="round" />
+    <circle cx="275" cy="102" r="2" fill="#757575" />
+  </g>
+  
+  <!-- Progress indicator -->
+  <g transform="translate(310, 310) scale(0.8)">
+    <circle cx="0" cy="0" r="35" fill="#ff9800" />
+    <circle cx="-15" cy="0" r="5" fill="white" />
+    <circle cx="0" cy="0" r="5" fill="white" />
+    <circle cx="15" cy="0" r="5" fill="white" />
+  </g>
+</svg>

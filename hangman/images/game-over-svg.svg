@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <circle cx="200" cy="200" r="180" fill="#eceff1" />
+  
+  <!-- Character body -->
+  <ellipse cx="200" cy="220" rx="100" ry="120" fill="#b0bec5" stroke="#90a4ae" stroke-width="3" />
+  
+  <!-- Face -->
+  <circle cx="200" cy="160" r="80" fill="#ffe0b2" stroke="#ffcc80" stroke-width="2" />
+  
+  <!-- Eyes - dizzy spiral eyes -->
+  <g>
+    <!-- Left eye -->
+    <circle cx="170" cy="140" r="18" fill="white" stroke="#333" stroke-width="1" />
+    <path d="M170,140 L170,130 A10,10 0 0,1 180,140 A10,10 0 0,1 170,150 A10,10 0 0,1 160,140 A10,10 0 0,1 170,130" 
+          fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Right eye -->
+    <circle cx="230" cy="140" r="18" fill="white" stroke="#333" stroke-width="1" />
+    <path d="M230,140 L230,130 A10,10 0 0,1 240,140 A10,10 0 0,1 230,150 A10,10 0 0,1 220,140 A10,10 0 0,1 230,130" 
+          fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Eyebrows - dizzy -->
+    <path d="M155,110 L185,120" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+    <path d="M215,120 L245,110" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Mouth - flat line -->
+  <line x1="170" y1="190" x2="230" y2="190" stroke="#333" stroke-width="4" stroke-linecap="round" />
+  
+  <!-- Collapsed arms -->
+  <path d="M130,220 Q140,250 145,280" fill="none" stroke="#90a4ae" stroke-width="8" stroke-linecap="round" />
+  <path d="M270,220 Q260,250 255,280" fill="none" stroke="#90a4ae" stroke-width="8" stroke-linecap="round" />
+  
+  <!-- Dizzy stars -->
+  <g>
+    <path d="M170,90 L175,100 L185,102 L177,110 L180,120 L170,115 L160,120 L163,110 L155,102 L165,100 Z" fill="none" stroke="#bdbdbd" stroke-width="2" />
+    <path d="M230,90 L235,100 L245,102 L237,110 L240,120 L230,115 L220,120 L223,110 L215,102 L225,100 Z" fill="none" stroke="#bdbdbd" stroke-width="2" />
+    <path d="M200,60 L205,70 L215,72 L207,80 L210,90 L200,85 L190,90 L193,80 L185,72 L195,70 Z" fill="none" stroke="#bdbdbd" stroke-width="2" />
+  </g>
+  
+  <!-- Game over symbol -->
+  <g transform="translate(310, 310) scale(0.8)">
+    <circle cx="0" cy="0" r="35" fill="#607d8b" />
+    <text x="0" y="7" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="white">END</text>
+  </g>
+</svg>

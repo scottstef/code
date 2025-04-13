@@ -1,0 +1,79 @@
+'''
+Task Breakdown:
+fetch_data: This task loads raw baseball data (either from a CSV or an API).
+
+clean_data: Cleans the data by removing duplicates, handling missing values, and normalizing the structure.
+
+feature_engineering: This task generates new features like batting average, on-base percentage, slugging percentage, etc.
+
+train_model: Builds and trains a machine learning model (e.g., for home run prediction) using the features created.
+
+visualize: This task produces visualizations from the data (like histograms, scatter plots) or prepares the data for use in the Streamlit dashboard.
+'''
+
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
+from airflow.operators.dummy_operator import DummyOperator
+from src.pipeline import fetch_data, clean_data, feature_engineering, model, visualize
+
+# Define default_args for the DAG
+default_args = {
+    'owner': 'airflow',
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'start_date': days_ago(1),
+}
+
+# Define the DAG
+with DAG('baseball_pipeline', default_args=default_args, schedule_interval='@daily') as dag:
+    
+    # Dummy start task
+    start_task = DummyOperator(task_id='start')
+    
+    # Task 1: Fetch data
+    fetch_data_task = PythonOperator(
+        task_id='fetch_data',
+        python_callable=fetch_data.load_local_data,
+        op_args=['data/raw/baseball_stats.csv'],  # Example data path
+        dag=dag
+    )
+    
+    # Task 2: Clean data
+    clean_data_task = PythonOperator(
+        task_id='clean_data',
+        python_callable=clean_data.clean_baseball_data,
+        op_args=['{{ task_instance.xcom_pull(task_ids="fetch_data") }}'],  # Pull data from previous task
+        dag=dag
+    )
+    
+    # Task 3: Feature engineering
+    feature_engineering_task = PythonOperator(
+        task_id='feature_engineering',
+        python_callable=feature_engineering.add_features,
+        op_args=['{{ task_instance.xcom_pull(task_ids="clean_data") }}'],  # Pull cleaned data
+        dag=dag
+    )
+    
+    # Task 4: Train model
+    train_model_task = PythonOperator(
+        task_id='train_model',
+        python_callable=model.train_model,  # Assuming model.py has a train_model function
+        op_args=['{{ task_instance.xcom_pull(task_ids="feature_engineering") }}'],  # Pull engineered features
+        dag=dag
+    )
+    
+    # Task 5: Visualize
+    visualize_task = PythonOperator(
+        task_id='visualize',
+        python_callable=visualize.plot_statistics,
+        op_args=['{{ task_instance.xcom_pull(task_ids="feature_engineering") }}'],  # Pull features
+        dag=dag
+    )
+
+    # Dummy end task
+    end_task = DummyOperator(task_id='end')
+    
+    # Set task dependencies
+    start_task >> fetch_data_task >> clean_data_task >> feature_engineering_task >> train_model_task >> visualize_task >> end_task
+
