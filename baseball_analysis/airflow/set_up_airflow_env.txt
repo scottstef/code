@@ -1,0 +1,12 @@
+Once you've set up Airflow and triggered this DAG, you can use Airflow's web interface to:
+
+Monitor the task execution
+
+View logs for each task
+
+Trigger the DAG manually
+
+Pause/resume the DAG
+
+Visualize the task dependencies (as a graph)
+

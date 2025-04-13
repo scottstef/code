@@ -1,0 +1,16 @@
+baseball-analysis-project/
+│
+├── airflow/
+│   ├── dags/                        # Airflow DAGs go here
+│   │   └── baseball_pipeline_dag.py  # The DAG for the pipeline
+│   ├── plugins/                     # Custom Airflow plugins (optional)
+│   └── Dockerfile                   # For Docker deployment of Airflow
+│
+├── data/                            # Raw and processed data
+│
+├── src/                             # Source code for the pipeline
+│
+├── requirements.txt                 # Python dependencies
+├── airflow.cfg                      # Airflow configuration (if needed)
+└── README.md                        # Project overview
+

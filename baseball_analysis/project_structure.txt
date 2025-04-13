@@ -1,0 +1,27 @@
+baseball-analysis-project/
+│
+├── data/
+│   ├── raw/                         # Raw CSVs (downloaded or scraped)
+│   └── processed/                   # Cleaned and transformed datasets
+│
+├── notebooks/
+│   └── EDA.ipynb                    # Exploratory Data Analysis
+│
+├── src/
+│   ├── pipeline/
+│   │   ├── fetch_data.py            # Download/scrape data
+│   │   ├── clean_data.py            # Preprocess and clean
+│   │   └── feature_engineering.py   # Create derived features
+│   │
+│   ├── visualize.py                 # Plotting functions
+│   ├── model.py                     # Model building & evaluation
+│   └── config.py                    # Configuration settings
+│
+├── dashboard/
+│   └── app.py                       # Streamlit dashboard application
+│
+├── main.py                          # Main pipeline script
+├── requirements.txt                 # Python dependencies
+├── .gitignore                       # Git ignore file
+└── README.md                        # Project overview
+

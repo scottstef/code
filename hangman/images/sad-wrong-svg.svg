@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <circle cx="200" cy="200" r="180" fill="#ffebee" />
+  
+  <!-- Character body -->
+  <ellipse cx="200" cy="220" rx="100" ry="120" fill="#ef9a9a" stroke="#e57373" stroke-width="3" />
+  
+  <!-- Face -->
+  <circle cx="200" cy="160" r="80" fill="#ffe0b2" stroke="#ffcc80" stroke-width="2" />
+  
+  <!-- Eyes -->
+  <g>
+    <!-- Left eye -->
+    <circle cx="170" cy="140" r="15" fill="white" stroke="#333" stroke-width="1" />
+    <circle cx="170" cy="143" r="8" fill="#333" />
+    <circle cx="168" cy="140" r="3" fill="white" />
+    
+    <!-- Right eye -->
+    <circle cx="230" cy="140" r="15" fill="white" stroke="#333" stroke-width="1" />
+    <circle cx="230" cy="143" r="8" fill="#333" />
+    <circle cx="228" cy="140" r="3" fill="white" />
+    
+    <!-- Eyebrows - sad -->
+    <path d="M155,125 Q170,115 185,125" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+    <path d="M215,125 Q230,115 245,125" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Sad mouth -->
+  <path d="M150,190 Q200,160 250,190" fill="none" stroke="#333" stroke-width="4" stroke-linecap="round" />
+  
+  <!-- Tear drop -->
+  <path d="M170,155 Q170,165 175,170" fill="none" stroke="#81d4fa" stroke-width="3" stroke-linecap="round" />
+  <circle cx="175" cy="170" r="5" fill="#81d4fa" />
+  
+  <!-- Droopy arms -->
+  <path d="M120,220 Q110,260 100,290" fill="none" stroke="#e57373" stroke-width="8" stroke-linecap="round" />
+  <path d="M280,220 Q290,260 300,290" fill="none" stroke="#e57373" stroke-width="8" stroke-linecap="round" />
+  
+  <!-- Wrong symbol -->
+  <g transform="translate(310, 310) scale(0.8)">
+    <circle cx="0" cy="0" r="35" fill="#f44336" />
+    <path d="M-15,-15 L15,15 M-15,15 L15,-15" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" />
+  </g>
+</svg>
