@@ -1,0 +1,1 @@
+python -m flask --app board run --port 5000 --debug
