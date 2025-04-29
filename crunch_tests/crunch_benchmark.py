@@ -68,6 +68,7 @@ def dask_benchmark():
     return dask_time
 
 # Native Python Benchmark (mean calculation with native Python)
+# Native Python Benchmark (mean calculation with native Python for all columns)
 def native_python_benchmark():
     print("\n=== Native Python Benchmark ===")
     start = time.time()
@@ -76,18 +77,27 @@ def native_python_benchmark():
     with open(csv_path, 'r') as f:
         reader = csv.reader(f)
         headers = next(reader)  # Skip header row
-        col_0 = [float(row[0]) for row in reader]
-        col_1 = [float(row[1]) for row in reader]  # Assuming another column for the mean calculation
+        # Initialize a dictionary to store data for each column, grouped by the first column
+        grouped_data = {header: {} for header in headers}
 
-    # Group by col_0 and calculate the mean for col_1 (simulating groupby in pandas/dask)
-    grouped_data = {}
-    for value, col_1_val in zip(col_0, col_1):
-        if value not in grouped_data:
-            grouped_data[value] = []
-        grouped_data[value].append(col_1_val)
+        # Populate the grouped_data dictionary
+        for row in reader:
+            group_key = float(row[0])  # The grouping key is the value in the first column
+            for i, value in enumerate(row):
+                header = headers[i]
+                value = float(value)
+                if group_key not in grouped_data[header]:
+                    grouped_data[header][group_key] = []
+                grouped_data[header][group_key].append(value)
 
-    # Calculate the mean of each group
-    means = {key: sum(values) / len(values) for key, values in grouped_data.items()}
+    # Calculate the mean for each column within each group
+    means = {}
+    for header in headers:
+        if header != headers[0]:  # Don't calculate mean for the grouping column
+            means[header] = {
+                key: sum(values) / len(values)
+                for key, values in grouped_data[header].items()
+            }
 
     end = time.time()
     native_python_time = end - start
@@ -174,6 +184,7 @@ def plot_benchmarks():
 # Main function
 def main():
     initialize_database()
+    print('Database initialized')
 
     seed_value = int(time.time())  # Using current time as a dynamic seed for randomness
     random.seed(seed_value)        # Seed the random module
