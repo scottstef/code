@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import sqlite3
 from datetime import datetime
@@ -8,14 +9,21 @@ import numpy as np
 import dask.dataframe as dd
 import matplotlib.pyplot as plt
 import csv
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import mean
+import socket
 
-csv_path = 'fake_data.csv'
-db_path = 'benchmark_results.db'
+source = socket.gethostname()
+print(f'Source is {source}')
+current_dir = os.getcwd()
+csv_path = os.path.join(current_dir, "fake_data.csv")
+db_path = os.path.join(current_dir, "benchmark_results.db")
 benchmark_results = []
+
 
 # Function to generate data
 def generate_data(count, num_cols):
-    NUM_ROWS = count * 1_000_000  # 1 million rows per "count"
+    NUM_ROWS = count * 100_000  # 100_000 rows per "count"
     NUM_COLS = num_cols
 
     print("\nGenerating fake data with pandas...")
@@ -32,6 +40,52 @@ def generate_data(count, num_cols):
     file_size_mb = file_stats.st_size / (1024 * 1024)  # File size in MB
     print(f'File Size in MegaBytes is {file_size_mb:.2f}')
     return file_size_mb  
+
+# Create a SparkSession
+def create_spark_session():
+    spark = (SparkSession
+            .builder
+            .appName("BenchmarkApp")
+            .config("spark.driver.memory", "12g")
+            .config("spark.executor.memory", "4g")
+            .config("spark.memory.offHeap.enabled", "true")
+            .config("spark.memory.offHeap.size", "2g")
+            .config("spark.driver.maxResultSize", "2g")
+            .config("spark.sql.shuffle.partitions", "10")
+            .config("spark.default.parallelism", "4")
+            .config("spark.executor.instances", "2")
+            .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC")
+            .getOrCreate())
+    
+    # Set log level to reduce console output
+    spark.sparkContext.setLogLevel("ERROR")
+    
+    return spark
+
+def pyspark_benchmark(spark_session):
+    """
+    Performs a benchmark using PySpark by reading a CSV file,
+    grouping the data by 'col_0', calculating the mean, and
+    measuring the execution time.
+
+    Args:
+        spark: The SparkSession.
+        csv_path: Path to the CSV file.
+
+    Returns:
+        float: The execution time in seconds.
+    """
+    print("\n=== PySpark Benchmark ===")
+    start = time.time()
+
+    df_spark = spark_session.read.csv(csv_path, header=True)  # Read the CSV file
+    result_spark = df_spark.groupBy('col_0').agg(mean('col_0')) # Group by 'col_0' and calculate the mean
+    result_spark.collect()  # Force execution and bring the result to the driver
+
+    end = time.time()
+    spark_time = end - start
+    print(f"PySpark time: {spark_time:.2f} seconds")
+    return spark_time
 
 # Benchmark using Pandas
 def pandas_benchmark():
@@ -77,27 +131,23 @@ def native_python_benchmark():
     with open(csv_path, 'r') as f:
         reader = csv.reader(f)
         headers = next(reader)  # Skip header row
-        # Initialize a dictionary to store data for each column, grouped by the first column
-        grouped_data = {header: {} for header in headers}
+        col_0_index = headers.index('col_0') #get the index of col_0
+
+        # Initialize a dictionary to store data for each group in col_0
+        grouped_data = {}
 
         # Populate the grouped_data dictionary
         for row in reader:
-            group_key = float(row[0])  # The grouping key is the value in the first column
-            for i, value in enumerate(row):
-                header = headers[i]
-                value = float(value)
-                if group_key not in grouped_data[header]:
-                    grouped_data[header][group_key] = []
-                grouped_data[header][group_key].append(value)
+            group_key = float(row[col_0_index])  # The grouping key is the value in 'col_0'
+            if group_key not in grouped_data:
+                grouped_data[group_key] = []
+            grouped_data[group_key].append(float(row[col_0_index])) # Append value of col_0
 
-    # Calculate the mean for each column within each group
-    means = {}
-    for header in headers:
-        if header != headers[0]:  # Don't calculate mean for the grouping column
-            means[header] = {
-                key: sum(values) / len(values)
-                for key, values in grouped_data[header].items()
-            }
+    # Calculate the mean of 'col_0' for each group
+    means = {
+        key: sum(values) / len(values)
+        for key, values in grouped_data.items()
+    }
 
     end = time.time()
     native_python_time = end - start
@@ -106,11 +156,11 @@ def native_python_benchmark():
 
     return native_python_time
 
-
 # Initialize the database
 def initialize_database():
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
+    print("Attempting to create table 'benchmarks'...")
     c.execute('''
         CREATE TABLE IF NOT EXISTS benchmarks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,20 +170,22 @@ def initialize_database():
             file_size_mb REAL,
             pandas_time REAL,
             dask_time REAL,
+            spark_time REAL,
             native_python_time REAL
         )
     ''')
     conn.commit()
+    print("Table 'benchmarks' created (or recreated).") 
     conn.close()
 
 # Save benchmark results into the database
-def save_results(run_date, count, num_cols, file_size_mb, pandas_time, dask_time, native_python_time):
+def save_results(run_date, count, num_cols, file_size_mb, pandas_time, dask_time, spark_time, native_python_time):
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''
-        INSERT INTO benchmarks (run_date, count, num_cols, file_size_mb, pandas_time, dask_time, native_python_time)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (run_date, count, num_cols, file_size_mb, pandas_time, dask_time, native_python_time))
+        INSERT INTO benchmarks (run_date, count, num_cols, file_size_mb, pandas_time, dask_time, spark_time, native_python_time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (run_date, count, num_cols, file_size_mb, pandas_time, dask_time, spark_time, native_python_time))
     conn.commit()
     conn.close()
 
@@ -149,6 +201,7 @@ def plot_benchmarks():
     plt.figure(figsize=(14, 8))
     plt.plot(df['run_date'], df['pandas_time'], label='Pandas', marker='o')
     plt.plot(df['run_date'], df['dask_time'], label='Dask', marker='o')
+    plt.plot(df['run_date'], df['spark_time'], label='Spark', marker='o')
     plt.plot(df['run_date'], df['native_python_time'], label='Native Python', marker='o')
 
     for i, row in df.iterrows():
@@ -179,24 +232,37 @@ def plot_benchmarks():
     plt.savefig(plot_file_name, dpi=300)
     print(f"Plot saved as {plot_file_name}.")
 
+
+
     plt.show(block=False)
 
+# Main function
 # Main function
 def main():
     initialize_database()
     print('Database initialized')
 
+    # Initialize SparkSession
+    spark = create_spark_session()
+
     seed_value = int(time.time())  # Using current time as a dynamic seed for randomness
     random.seed(seed_value)        # Seed the random module
     np.random.seed(seed_value)
+    if test_flag == True:
+        num_tests = 1
+    else:
+        num_tests = 20
 
-    for i in range(2):  # Run 20 tests
+    for i in range(num_tests):  # Run the specified number of tests
         print(f"\n=== Run {i+1} ===")
+        if test_flag == True:
+            count = 1
+            num_cols = 10
+        else:
+            count = random.randint(1, 30)  # Randomly choose a count (number of millions of rows)
+            num_cols = random.randint(1, 20)  # Randomly choose the number of columns
 
-        count = random.randint(1, 30)  # Randomly choose a count (number of millions of rows)
-        num_cols = random.randint(1, 40)  # Randomly choose the number of columns
-
-        print(f"Running with count={count} million rows and num_cols={num_cols} columns")
+        print(f"Running with count={count} hundred thousand rows and num_cols={num_cols} columns")
 
         file_size_mb = generate_data(count, num_cols)
 
@@ -206,14 +272,24 @@ def main():
         # Run Dask Benchmark
         dask_time = dask_benchmark()
 
+        # Run Spark Benchmark
+        spark_time = pyspark_benchmark(spark) # Passing the spark session
+        
+
         # Run Native Python Benchmark
         native_python_time = native_python_benchmark()
 
         run_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        save_results(run_date, count, num_cols, file_size_mb, pandas_time, dask_time, native_python_time)
+        save_results(run_date, count, num_cols, file_size_mb, pandas_time, dask_time, spark_time, native_python_time)
 
     # After all runs, plot the results
     plot_benchmarks()
 
+    # Stop the SparkSession
+    spark.stop()
+
 if __name__ == "__main__":
+    test_flag = False # Initialize test_flag to False by default
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        test_flag = True
     main()
